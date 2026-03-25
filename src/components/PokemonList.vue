@@ -4,39 +4,52 @@
     <div v-if="error" class="error">{{ error }}</div>
     <div v-if="loading" class="loading">Carregando...</div>
 
-    <!-- Conteúdo principal quando não há erro e não está carregando -->
+    <!-- Conteúdo principal -->
     <div v-if="!loading && !error">
-      <!-- Área "Meu Time" - aparece sempre que houver escolhas -->
-      <div v-if="selections.length" class="my-team">
-        <h3>⭐ Meu Time ⭐</h3>
-        <div class="team-grid">
-          <div
-            v-for="(pokemon, idx) in selections"
-            :key="idx"
-            class="team-card"
-          >
-            <img :src="pokemon.sprites.front_default" :alt="pokemon.name" />
-            <span>{{ pokemon.name }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- Time do usuário -->
+      <PokemonTeam
+        v-if="selections.length"
+        title="Meu Time"
+        icon="fa-solid fa-star"
+        :pokemons="selections"
+        type="user"
+        class="user-team"
+      />
 
-      <!-- Área de jogo (opções e ações) - exibida apenas se não finalizado -->
+      <!-- Time rival com animação de entrada -->
+      <transition name="rival-appear">
+        <PokemonTeam
+          v-if="completed"
+          title="Time Rival"
+          icon="fa-solid fa-skull"
+          :pokemons="rivalTeam"
+          type="rival"
+          :stagger="true"
+          class="rival-team"
+        />
+      </transition>
+
+      <!-- Área de jogo (enquanto não concluído) -->
       <div v-if="!completed">
         <div class="progress" v-if="round > 1 || currentOptions.length">
           <strong>Rodada {{ round }} de 3</strong>
         </div>
 
-        <!-- Grid com os 3 Pokémon atuais -->
-        <div v-if="currentOptions.length" class="pokemon-grid">
+        <!-- Grid de opções com animação de entrada -->
+        <div 
+          v-if="currentOptions.length" 
+          class="pokemon-grid" 
+          :key="gridKey"
+        >
           <div
-            v-for="pokemon in currentOptions"
+            v-for="(pokemon, idx) in currentOptions"
             :key="pokemon.name"
-            class="pokemon-card"
+            class="pokemon-card animated-card"
             :class="{
               selected: selectedPokemon?.name === pokemon.name,
               dim: selectedPokemon && selectedPokemon?.name !== pokemon.name
             }"
+            :style="{ animationDelay: `${idx * 0.1}s` }"
             @click="selectPokemon(pokemon)"
           >
             <img :src="pokemon.sprites.front_default" :alt="pokemon.name" />
@@ -44,7 +57,6 @@
           </div>
         </div>
 
-        <!-- Área de ações -->
         <div class="actions">
           <button
             v-if="!currentOptions.length"
@@ -66,9 +78,8 @@
         </div>
       </div>
 
-      <!-- Área de conclusão - exibida quando finalizado -->
+      <!-- Botão reiniciar -->
       <div v-if="completed" class="completion">
-        <h3>✅ Seleção finalizada!</h3>
         <button @click="resetGame" class="reset-btn">Reiniciar</button>
       </div>
     </div>
@@ -76,8 +87,11 @@
 </template>
 
 <script>
+import PokemonTeam from './PokemonTeam.vue'
+
 export default {
   name: 'PokemonList',
+  components: { PokemonTeam },
   data() {
     return {
       allPokemonRefs: [],
@@ -88,6 +102,9 @@ export default {
       loading: false,
       error: null,
       completed: false,
+      rivalTeam: [],
+      rivalLoading: false,
+      gridKey: 0 // chave para forçar re-renderização da grid
     }
   },
   async mounted() {
@@ -113,11 +130,12 @@ export default {
           indices.add(Math.floor(Math.random() * this.allPokemonRefs.length))
         }
         const randomRefs = Array.from(indices).map(i => this.allPokemonRefs[i])
-
         const pokemons = await Promise.all(
           randomRefs.map(ref => fetch(ref.url).then(r => r.json()))
         )
         this.currentOptions = pokemons
+        // Incrementa a chave para forçar re-renderização e animação dos cards
+        this.gridKey++
       } catch (err) {
         this.error = 'Erro ao carregar os Pokémons. Tente novamente.'
       } finally {
@@ -132,19 +150,36 @@ export default {
 
     confirmSelection() {
       if (!this.selectedPokemon || this.loading) return
-
       this.selections.push(this.selectedPokemon)
 
       if (this.round === 3) {
-        this.completed = true
-        this.currentOptions = []
-        this.selectedPokemon = null
+        this.fetchRivalTeam()
         return
       }
 
       this.round++
       this.currentOptions = []
       this.selectedPokemon = null
+    },
+
+    async fetchRivalTeam() {
+      this.rivalLoading = true
+      try {
+        const indices = new Set()
+        while (indices.size < 3) {
+          indices.add(Math.floor(Math.random() * this.allPokemonRefs.length))
+        }
+        const randomRefs = Array.from(indices).map(i => this.allPokemonRefs[i])
+        const pokemons = await Promise.all(
+          randomRefs.map(ref => fetch(ref.url).then(r => r.json()))
+        )
+        this.rivalTeam = pokemons
+        this.completed = true
+      } catch (err) {
+        this.error = 'Erro ao carregar o time rival. Tente reiniciar.'
+      } finally {
+        this.rivalLoading = false
+      }
     },
 
     resetGame() {
@@ -154,57 +189,16 @@ export default {
       this.currentOptions = []
       this.selectedPokemon = null
       this.error = null
+      this.rivalTeam = []
+      this.rivalLoading = false
+      this.gridKey++
     }
   }
 }
 </script>
 
 <style scoped>
-/* Mantém todos os estilos anteriores e adiciona o novo para .completion */
-
-.my-team {
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.my-team h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-}
-
-.team-grid {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.team-card {
-  background: white;
-  border-radius: 8px;
-  padding: 0.5rem;
-  text-align: center;
-  width: 80px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.team-card img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-}
-
-.team-card span {
-  display: block;
-  text-transform: capitalize;
-  font-size: 0.8rem;
-  margin-top: 4px;
-}
-
+/* ===== ESTILOS EXISTENTES ===== */
 .pokemon-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(250px, 300px));
@@ -228,7 +222,6 @@ export default {
 }
 
 .pokemon-card.selected {
-  transform: scale(1.05);
   border-color: #00d358;
   background-color: #f0f0ff;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -251,6 +244,23 @@ export default {
   text-transform: capitalize;
   margin: 8px 0 0;
   font-size: 1rem;
+}
+
+/* ===== NOVA ANIMAÇÃO PARA OS CARDS DE OPÇÃO ===== */
+.animated-card {
+  animation: card-fade-in 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes card-fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .loading,
@@ -295,11 +305,13 @@ export default {
 }
 
 .completion {
+  background-color: #f0f0ff;
   text-align: center;
-  margin-top: 2rem;
-  background: white;
+  margin: auto;
   border-radius: 12px;
   padding: 1.5rem;
+  width: 100%;
+  max-width: 330px;
 }
 
 .progress {
@@ -322,5 +334,21 @@ export default {
 
 .reset-btn:hover {
   background-color: #e6c200;
+}
+
+/* Animação do time rival */
+.rival-appear-enter-active {
+  animation: rival-slide-up 0.6s ease-out;
+}
+
+@keyframes rival-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
