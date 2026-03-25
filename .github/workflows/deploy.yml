@@ -1,0 +1,31 @@
+name: Deploy para GitHub Pages
+
+on:
+  push:
+    branches: ["main"] # ou "master", dependendo do seu branch principal
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Instalar dependências
+        run: npm install # ou yarn, ou pnpm install
+        
+      - name: Buildar projeto
+        run: npm run build
+        
+      - name: Fazer deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist # ou pasta de saída do build
