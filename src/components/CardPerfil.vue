@@ -51,10 +51,16 @@
           Confirmar
         </button>
 
-        <!-- Win Streak (opcional) -->
-        <div v-if="winStreak !== null" class="win-streak">
-          <span class="streak-label">Win Streak:</span>
-          <span class="streak-value">{{ winStreak }}</span>
+        <!-- Streaks -->
+        <div v-if="winStreak !== null || lossStreak !== null" class="streaks">
+          <div v-if="winStreak !== null" class="streak-item">
+            <span class="streak-label">Win Streak:</span>
+            <span class="streak-value win">{{ winStreak }}</span>
+          </div>
+          <div v-if="lossStreak !== null" class="streak-item">
+            <span class="streak-label">Loss Streak:</span>
+            <span class="streak-value loss">{{ lossStreak }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -69,7 +75,8 @@ export default {
       nomeTreinador: '',
       fotoPreview: null,
       fotoArquivo: null,
-      winStreak: 0
+      winStreak: 0,
+      lossStreak: 0
     }
   },
   methods: {
@@ -98,13 +105,14 @@ export default {
         const dadosTreinador = {
           nome: this.nomeTreinador,
           foto: this.fotoPreview,
-          winStreak: this.winStreak
+          winStreak: this.winStreak,
+          lossStreak: this.lossStreak
         }
         
         // Emitir evento para o componente pai
         this.$emit('dados-confirmados', dadosTreinador)
         
-        // Salvar no localStorage se quiser
+        // Salvar no localStorage
         localStorage.setItem('dadosTreinador', JSON.stringify(dadosTreinador))
       }
     },
@@ -115,7 +123,8 @@ export default {
         const dados = JSON.parse(dadosSalvos)
         this.nomeTreinador = dados.nome
         this.fotoPreview = dados.foto
-        this.winStreak = dados.winStreak
+        this.winStreak = dados.winStreak ?? 0
+        this.lossStreak = dados.lossStreak ?? 0
       }
     }
   },
@@ -267,25 +276,41 @@ export default {
   cursor: not-allowed;
 }
 
-/* Win Streak */
-.win-streak {
+/* Streaks */
+.streaks {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.streak-item {
   text-align: center;
-  padding: 10px;
+  padding: 8px;
   background: #f8f9fa;
   border-radius: 8px;
-  margin-top: 15px;
+  flex: 1;
 }
 
 .streak-label {
   font-weight: 500;
   color: #666;
-  margin-right: 10px;
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
 }
 
 .streak-value {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #f5576c;
+}
+
+.streak-value.win {
+  color: #00d358;
+}
+
+.streak-value.loss {
+  color: #ff6b6b;
 }
 
 /* Responsividade */
@@ -302,6 +327,31 @@ export default {
   .foto-preview {
     width: 120px;
     height: 120px;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-perfil {
+    max-width: 300px;
+  }
+
+  .card-content {
+    padding: 15px;
+  }
+
+  .foto-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .input-nome {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .btn-confirmar {
+    padding: 10px;
+    font-size: 0.9rem;
   }
 }
 </style>

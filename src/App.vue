@@ -13,9 +13,10 @@
         <div class="info">
           <h2>{{ treinador.nome }}</h2>
           <p>Win Streak: {{ treinador.winStreak }}</p>
+          <p>Loss Streak: {{ treinador.lossStreak }}</p>
         </div>
       </div>
-      <PokemonList />
+      <PokemonList @battle-complete="handleBattleComplete" />
     </div>
   </div>
 </template>
@@ -30,7 +31,7 @@ export default {
   data() {
     return {
       estaLogado: false,
-      treinador: { nome: '', foto: null, winStreak: 0 }
+      treinador: { nome: '', foto: null, winStreak: 0, lossStreak: 0 }
     }
   },
   mounted() {
@@ -44,6 +45,20 @@ export default {
     handleLogin(dados) {
       this.treinador = dados
       this.estaLogado = true
+    },
+    handleBattleComplete(outcome) {
+      // Atualiza as streaks com base no resultado
+      if (outcome === 'win') {
+        this.treinador.winStreak++
+        this.treinador.lossStreak = 0   // zera a sequência de derrotas ao vencer
+      } else if (outcome === 'loss') {
+        this.treinador.lossStreak++
+        this.treinador.winStreak = 0    // zera a sequência de vitórias ao perder
+      }
+      // Em caso de empate, não altera as streaks
+
+      // Salva os dados atualizados no localStorage
+      localStorage.setItem('dadosTreinador', JSON.stringify(this.treinador))
     }
   }
 }
@@ -60,6 +75,7 @@ body {
   font-family: sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .main-container {

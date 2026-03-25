@@ -15,6 +15,18 @@
       >
         <img :src="pokemon.sprites.front_default" :alt="pokemon.name" />
         <span>{{ pokemon.name }}</span>
+        <div class="pokemon-types">
+          <span class="type-badge" :class="pokemon.types[0].type.name">
+            {{ pokemon.types[0].type.name }}
+          </span>
+          <span
+            v-if="pokemon.types.length > 1"
+            class="type-badge"
+            :class="pokemon.types[1].type.name"
+          >
+            {{ pokemon.types[1].type.name }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -38,7 +50,7 @@ export default {
     },
     type: {
       type: String,
-      default: 'user' // 'user' ou 'rival'
+      default: 'user'
     },
     stagger: {
       type: Boolean,
@@ -78,7 +90,7 @@ export default {
   border-radius: 8px;
   padding: 0.5rem;
   text-align: center;
-  width: 80px;
+  width: 100px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid #00d358;
 }
@@ -89,19 +101,55 @@ export default {
 }
 
 .team-card img {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
 }
 
 .team-card span {
   display: block;
   text-transform: capitalize;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.pokemon-types {
   margin-top: 4px;
 }
 
-/* Animação para cards em stagger */
+.type-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin: 0 2px;
+  background: #eee;
+  color: #333;
+}
+
+/* Type colors (same as in PokemonList) */
+.type-badge.normal { background: #A8A878; color: white; }
+.type-badge.fire { background: #F08030; color: white; }
+.type-badge.water { background: #6890F0; color: white; }
+.type-badge.grass { background: #78C850; color: white; }
+.type-badge.electric { background: #F8D030; color: black; }
+.type-badge.ice { background: #98D8D8; color: black; }
+.type-badge.fighting { background: #C03028; color: white; }
+.type-badge.poison { background: #A040A0; color: white; }
+.type-badge.ground { background: #E0C068; color: black; }
+.type-badge.flying { background: #A890F0; color: white; }
+.type-badge.psychic { background: #F85888; color: white; }
+.type-badge.bug { background: #A8B820; color: white; }
+.type-badge.rock { background: #B8A038; color: white; }
+.type-badge.ghost { background: #705898; color: white; }
+.type-badge.dragon { background: #7038F8; color: white; }
+.type-badge.dark { background: #705848; color: white; }
+.type-badge.steel { background: #B8B8D0; color: black; }
+.type-badge.fairy { background: #EE99AC; color: black; }
+
+/* Animation for staggered cards */
 .stagger-card {
   animation: card-fade-in 0.3s ease-out forwards;
   opacity: 0;
@@ -115,6 +163,27 @@ export default {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .team-card {
+    width: 80px;
+    padding: 0.3rem;
+  }
+
+  .team-card img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .team-card span {
+    font-size: 0.75rem;
+  }
+
+  .type-badge {
+    font-size: 0.55rem;
+    padding: 1px 4px;
   }
 }
 </style>
