@@ -106,8 +106,6 @@ export default {
         
         // Salvar no localStorage se quiser
         localStorage.setItem('dadosTreinador', JSON.stringify(dadosTreinador))
-        
-        alert(`Bem-vindo, ${this.nomeTreinador}!`)
       }
     },
     
@@ -134,7 +132,6 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .card-perfil {
@@ -144,11 +141,6 @@ export default {
   width: 100%;
   max-width: 400px;
   overflow: hidden;
-  transition: transform 0.3s ease;
-}
-
-.card-perfil:hover {
-  transform: translateY(-5px);
 }
 
 .card-header {
