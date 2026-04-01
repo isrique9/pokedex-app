@@ -42,11 +42,11 @@
           />
         </div>
 
-        <!-- Botão Confirmar -->
+        <!-- Botão Confirmar (agora verifica nome e foto) -->
         <button 
           @click="confirmarDados"
           class="btn-confirmar"
-          :disabled="!nomeTreinador"
+          :disabled="!nomeTreinador || !fotoPreview"
         >
           Confirmar
         </button>
@@ -89,7 +89,6 @@ export default {
       if (file && file.type.startsWith('image/')) {
         this.fotoArquivo = file
         
-        // Criar preview da imagem
         const reader = new FileReader()
         reader.onload = (e) => {
           this.fotoPreview = e.target.result
@@ -101,7 +100,7 @@ export default {
     },
     
     confirmarDados() {
-      if (this.nomeTreinador) {
+      if (this.nomeTreinador && this.fotoPreview) {
         const dadosTreinador = {
           nome: this.nomeTreinador,
           foto: this.fotoPreview,
@@ -109,11 +108,10 @@ export default {
           lossStreak: this.lossStreak
         }
         
-        // Emitir evento para o componente pai
         this.$emit('dados-confirmados', dadosTreinador)
-        
-        // Salvar no localStorage
         localStorage.setItem('dadosTreinador', JSON.stringify(dadosTreinador))
+      } else {
+        alert('Por favor, preencha o nome e selecione uma foto.')
       }
     },
     

@@ -88,9 +88,10 @@ export default {
 .team-card {
   background: white;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 10px;
   text-align: center;
-  width: 100px;
+  width: 176px;
+  width: 154px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid #00d358;
 }

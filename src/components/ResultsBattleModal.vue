@@ -78,6 +78,8 @@
 </template>
 
 <script>
+import confetti from 'canvas-confetti'
+
 export default {
   name: 'ResultsBattleModal',
   props: {
@@ -105,9 +107,49 @@ export default {
       return '<i class="fa-solid fa-handshake"></i> Empate na batalha!'
     }
   },
+  watch: {
+    // Quando o modal se tornar visível, verifica se houve vitória e dispara os confetes
+    visible(newVal) {
+      if (newVal && this.isVictory()) {
+        this.fireConfetti()
+      }
+    }
+  },
   methods: {
     close() {
       this.$emit('close')
+    },
+    // Verifica se o resultado final é vitória do usuário
+    isVictory() {
+      return this.overallResultText.includes('Você venceu a batalha!')
+    },
+    // Dispara uma explosão de confetes
+    fireConfetti() {
+      // Configuração para uma chuva de confetes mais intensa
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 },
+        startVelocity: 25,
+        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+      })
+      // Adiciona um segundo disparo com mais partículas e ângulo diferente
+      setTimeout(() => {
+        confetti({
+          particleCount: 150,
+          spread: 120,
+          origin: { y: 0.5, x: 0.2 },
+          startVelocity: 20,
+          colors: ['#ffaa00', '#ff44cc', '#44ffaa']
+        })
+        confetti({
+          particleCount: 150,
+          spread: 120,
+          origin: { y: 0.5, x: 0.8 },
+          startVelocity: 20,
+          colors: ['#ffaa00', '#ff44cc', '#44ffaa']
+        })
+      }, 150)
     }
   }
 }
