@@ -110,5 +110,10 @@ Contribuições são bem-vindas! Se encontrar algum bug ou tiver sugestões:
 - Efeito de confetes: [canvas-confetti](https://github.com/catdad/canvas-confetti).
 - Gradientes e inspiração de design – interface divertida inspirada no mundo Pokémon.
 
+## 👤 Autor
+
+Desenvolvido por [Israel Henrique](https://github.com/isrique9) – [henriqueisraeul790@gmail.com](mailto:henriqueisraeul790@gmail.com)  
+Projeto de portfólio para demonstração de Vue.js e integração com APIs meteorológicas.
+
 **Divirta-se e que vença o melhor treinador! 🏆🎮**
 
