@@ -46,7 +46,7 @@ Bem-vindo à [Pokémon Battle Arena](https://isrique9.github.io/Pokedex_App/) �
 1. Clone o repositório
 
 ````bash
-git clone https://github.com/seu-usuario/pokemon-battle-arena.git
+git clone https://github.com/isrique9/pokedex-app.git
 cd pokemon-battle-arena
 ````
 
